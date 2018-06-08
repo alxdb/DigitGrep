@@ -6,14 +6,14 @@ import           Network
 import           System.Random
 
 seed :: Int
-seed = 1234
+seed = 314
 
 main :: IO ()
 main = do
-    setStdGen (mkStdGen 1234)
+    setStdGen (mkStdGen seed)
     let layerSizes = [784, 16, 16, 10]
     network <- initialiseNetwork layerSizes :: IO (NetworkData Double)
-    input   <- replicateM (last layerSizes) (randomIO :: IO Double)
+    input   <- replicateM (head layerSizes) (randomIO :: IO Double)
     let output = runNetwork input network
     print output
     print $ cost output 2

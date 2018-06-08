@@ -26,10 +26,10 @@ cost result expected = sum $ map (** 2) (result |-| [ if x == expected then 1 el
 runNetwork :: (Floating a) => [a] -> NetworkData a -> [a]
 runNetwork input (NetworkData layers) = foldl propagate input layers
 
-initialiseLayer :: (Random a) => Int -> Int -> IO (LayerData a)
+initialiseLayer :: (Num a, Random a) => Int -> Int -> IO (LayerData a)
 initialiseLayer inputSize layerSize = do
-    w <- replicateM layerSize (replicateM inputSize randomIO)
-    b <- replicateM layerSize randomIO
+    w <- replicateM layerSize (replicateM inputSize (randomRIO (-1, 1)))
+    b <- replicateM layerSize (randomRIO (-1, 1))
     return LayerData {weights = WeightData w, biases = BiasData b}
 
 createConnectionTuples :: [Int] -> [(Int, Int)]
@@ -38,7 +38,7 @@ createConnectionTuples sizes = foldr (\z x -> (z, fst $ head x) : x) [toTuple $ 
     split = splitAt (length sizes - 2) sizes
     toTuple [a, b] = (a, b)
 
-initialiseNetwork :: (Random a) => [Int] -> IO (NetworkData a)
+initialiseNetwork :: (Num a, Random a) => [Int] -> IO (NetworkData a)
 initialiseNetwork layerSizes = do
     randomLayers <- sequence [ initialiseLayer from to | (from, to) <- createConnectionTuples layerSizes ]
     return NetworkData {layers = randomLayers}
