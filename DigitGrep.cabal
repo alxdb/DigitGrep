@@ -19,4 +19,5 @@ executable DigitGrep
   other-modules:     Network
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
-                       mnist-idx
+                       mnist-idx,
+                       random
