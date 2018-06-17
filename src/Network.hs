@@ -1,8 +1,8 @@
 module Network where
 
-import           Control.Monad (replicateM)
-import           LAUtils
-import           System.Random
+import Control.Monad (replicateM)
+import LAUtils
+import System.Random
 
 newtype WeightData a = WeightData [[a]] deriving (Show)
 newtype BiasData a = BiasData [a] deriving (Show)
