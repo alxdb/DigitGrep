@@ -33,10 +33,7 @@ initialiseLayer inputSize layerSize = do
     return LayerData {weights = WeightData w, biases = BiasData b}
 
 createConnectionTuples :: [Int] -> [(Int, Int)]
-createConnectionTuples sizes = foldr (\z x -> (z, fst $ head x) : x) [toTuple $ snd split] (fst split)
-  where
-    split = splitAt (length sizes - 2) sizes
-    toTuple [a, b] = (a, b)
+createConnectionTuples sizes = map (\i -> (sizes!!i, sizes!!(i + 1))) [0..length sizes - 2]
 
 initialiseNetwork :: (Num a, Random a) => [Int] -> IO (NetworkData a)
 initialiseNetwork layerSizes = do
