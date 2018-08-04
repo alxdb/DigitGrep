@@ -1,4 +1,4 @@
-module LAUtils where
+module Linalg where
 
 (|+|) :: (Num a) => [a] -> [a] -> [a]
 x |+| y = zipWith (+) x y

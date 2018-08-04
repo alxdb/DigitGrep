@@ -16,8 +16,18 @@
         {
             "label": "Train",
             "type": "shell",
-            "command": "stack exec DigitGrep-Train",
+            "command": "stack exec TrainMnist",
             "problemMatcher": []
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "stack exec TestMnist",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }

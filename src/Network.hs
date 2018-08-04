@@ -1,18 +1,29 @@
 module Network where
 
-import Control.Monad (replicateM)
-import LAUtils
-import System.Random
+import           Control.Monad       (replicateM)
+import           Data.Binary
+import           Data.IDX
+import qualified Data.Vector.Unboxed as VB
+import           Linalg
+import           System.Random
 
-newtype WeightData a = WeightData [[a]] deriving (Show)
-newtype BiasData a = BiasData [a] deriving (Show)
+newtype WeightData a = WeightData [[a]] deriving (Show, Read)
+newtype BiasData a = BiasData [a] deriving (Show, Read)
 
 data LayerData a = LayerData {
     weights :: WeightData a,
     biases  :: BiasData a
-} deriving (Show)
+} deriving (Show, Read)
 
-newtype NetworkData a = NetworkData {layers :: [LayerData a]} deriving (Show)
+newtype NetworkData a = NetworkData {layers :: [LayerData a]} deriving (Show, Read)
+
+fromJust :: Maybe a -> a
+fromJust Nothing  = error "found Nothing"
+fromJust (Just x) = x
+
+(>?) :: (a -> b) -> Maybe a -> b
+(>?) f (Just x) = f x
+(>?) _ Nothing  = error "found nothing"
 
 sigmoid :: (Floating a) => a -> a
 sigmoid x = 1 / (1 + exp (-x))
@@ -35,7 +46,14 @@ initialiseLayer inputSize layerSize = do
 createConnectionTuples :: [Int] -> [(Int, Int)]
 createConnectionTuples sizes = map (\i -> (sizes!!i, sizes!!(i + 1))) [0..length sizes - 2]
 
-initialiseNetwork :: (Num a, Random a) => [Int] -> IO (NetworkData a)
-initialiseNetwork layerSizes = do
+initialiseNetwork :: (Num a, Random a) => [Int] -> Int -> IO (NetworkData a)
+initialiseNetwork layerSizes seed = do
+    setStdGen (mkStdGen seed)
     randomLayers <- sequence [ initialiseLayer from to | (from, to) <- createConnectionTuples layerSizes ]
     return NetworkData {layers = randomLayers}
+
+getTrainingData :: IO [(Int, [Double])]
+getTrainingData = do
+    trainImages <- decodeIDXFile "data/train-images.idx"
+    trainLabels <- decodeIDXLabelsFile "data/train-labels.idx"
+    return [ (label, VB.toList image) | (label, image) <- fromJust $ ((labeledDoubleData >? trainLabels) >? trainImages)]
