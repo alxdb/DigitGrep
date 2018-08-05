@@ -1,10 +1,7 @@
 module Main where
 
 import Data.IDX
-import Control.Monad (replicateM)
 import qualified Data.Vector.Unboxed as V
-import Data.List
-import Network
 
 fromJust :: Maybe a -> a
 fromJust Nothing  = error "found Nothing"

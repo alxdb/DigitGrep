@@ -1,9 +1,7 @@
 module Main where
 
-import Control.Monad (replicateM, when)
 import Data.IDX
 import qualified Data.Vector.Unboxed as V
-import Data.List
 import Network
 import System.Random
 import Numeric
@@ -60,4 +58,5 @@ main = do
         putStrLn $ "average cost: " ++ formatFloatN avg 2
         return avg
         ) [0..(trainingSubsets - 1)]
+    print costAvg
     putStrLn "Done"
