@@ -13,13 +13,13 @@ cabal-version: >=1.8
 
 library 
   hs-source-dirs: src
-  exposed-modules: Linalg, Network, AI.NeuralNet
+  exposed-modules: AI.NeuralNet, Data.Mnist
   build-depends: base >= 4.7 && < 5, mnist-idx, random, vector, binary, hmatrix
 
 executable TrainMnist
   hs-source-dirs: app
   main-is: Train.hs
-  build-depends: base >= 4.7 && < 5, mnist
+  build-depends: base >= 4.7 && < 5, mnist, hmatrix
 
 executable TestMnist
   hs-source-dirs: app
