@@ -2,7 +2,8 @@ module AI.NeuralNet (
 generateNeuralNet,
 saveNetwork,
 loadNetwork,
-train
+train,
+run
 ) where
 
 import           Data.Binary
@@ -30,8 +31,8 @@ generateNeuralNet :: Int -> [Int] -> NeuralNet
 generateNeuralNet seed sizes = map genRandLayer dims
     where
         genRandLayer (input, output) = (genRandWeights output input, genRandBiases output)
-        genRandWeights rows cols = rows><cols $ randoms g
-        genRandBiases size = size |> randoms g
+        genRandWeights r c = r><c $ randoms g
+        genRandBiases s = s |> randoms g
         g = mkStdGen seed
         dims = zip sizes (tail sizes)
 
@@ -44,15 +45,20 @@ loadNetwork = decodeFile
 
 -- Neural Network Logic
 
-iterateForward :: Layer -> Vector R -> Vector R
-iterateForward (w, b) input = (w #> input) + b
+iterateForward :: Vector R -> Layer -> Vector R
+iterateForward input (w, b) = (w #> input) + b
+
+-- |Run the network
+-- generate an output based on the current weights and biases
+run :: NeuralNet -> Vector R -> Vector R
+run net input = foldl (\ v l -> cmap sigmoid (iterateForward v l)) input net
 
 -- |Feedforward algorithm for Backpropagation
 -- performs normal feed forward but stores intermediate values that will be needed in backpropagation
 feedFore :: ([Vector R], [Vector R]) -> Layer -> ([Vector R], [Vector R])
 feedFore (a, z) layer = (a' : a, z' : z)
     where
-        z' = iterateForward layer (head a)
+        z' = iterateForward (head a) layer
         a' = cmap sigmoid z'
 
 -- |Feedback algorithm for BackPropagation
@@ -76,8 +82,8 @@ backProp network (input, output) = foldl feedBack [(asColumn initDel * asRow ini
 
 -- |Training Function
 -- applys back propagation to a network given a set of input data
-train :: NeuralNet -> R -> [(Vector R, Vector R)] -> NeuralNet
-train network eta ioPairs = mapPair applyDel (network, grad)
+train :: R -> [(Vector R, Vector R)] -> NeuralNet -> NeuralNet
+train eta ioPairs network = mapPair applyDel (network, grad)
     where
         applyDel :: Layer -> Nabla -> Layer
         applyDel (w, b) (dw, db) = (w - scalar (eta / fromIntegral (length ioPairs)) * dw, b - scalar (eta / fromIntegral (length ioPairs)) * db)
@@ -94,8 +100,10 @@ sigmoid' :: R -> R
 sigmoid' z = sigmoid z * (1 - sigmoid z)
 
 mapPair :: (a -> b -> c) -> ([a], [b]) -> [c]
-mapPair _ ([], [])     = []
 mapPair f (x:xs, y:ys) = f x y : mapPair f (xs, ys)
+mapPair _ ([], [])     = []
+mapPair _ ([], _:_)    = []
+mapPair _ (_:_, [])    = []
 
 addPair :: (Num a, Num b) => (a, b) -> (a, b) -> (a, b)
 addPair (xa, xb) (ya, yb) = (xa + ya, xb + yb)

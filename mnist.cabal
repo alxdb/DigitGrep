@@ -24,4 +24,4 @@ executable TrainMnist
 executable TestMnist
   hs-source-dirs: app
   main-is: Test.hs
-  build-depends: base >= 4.7 && < 5, mnist
+  build-depends: base >= 4.7 && < 5, mnist, hmatrix
