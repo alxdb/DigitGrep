@@ -3,7 +3,8 @@ generateNeuralNet,
 saveNetwork,
 loadNetwork,
 train,
-run
+run,
+NeuralNet
 ) where
 
 import           Data.Binary
@@ -102,8 +103,8 @@ sigmoid' z = sigmoid z * (1 - sigmoid z)
 mapPair :: (a -> b -> c) -> ([a], [b]) -> [c]
 mapPair f (x:xs, y:ys) = f x y : mapPair f (xs, ys)
 mapPair _ ([], [])     = []
-mapPair _ ([], _:_)    = []
-mapPair _ (_:_, [])    = []
+mapPair _ ([], _)    = []
+mapPair _ (_, [])    = []
 
 addPair :: (Num a, Num b) => (a, b) -> (a, b) -> (a, b)
 addPair (xa, xb) (ya, yb) = (xa + ya, xb + yb)

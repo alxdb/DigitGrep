@@ -1,6 +1,7 @@
 module Main where
 
 import           AI.NeuralNet
+import           Control.DeepSeq
 import           Data.Mnist
 import           Numeric.LinearAlgebra
 
@@ -8,7 +9,7 @@ seed :: Int
 seed = 123
 
 eta :: R
-eta = 0.1
+eta = 0.3
 
 hiddenLayers :: [Int]
 hiddenLayers = [16, 16]
@@ -22,11 +23,18 @@ main = do
     trainData <- getTrainingData
     let layerSizes = [size . fst . head $ trainData] ++ hiddenLayers ++ [size . snd . head $ trainData]
     let initNetwork = generateNeuralNet seed layerSizes
+    putStrLn "creating init network"
     -- Training Loop
-    let network = head . take epochs $ iterate' (train eta trainData) initNetwork
-    saveNetwork "network" network
+    putStrLn "starting Training"
+    network <- logiter epochs (train eta trainData) initNetwork
+    saveNetwork ("network-" ++ show eta ++ "-" ++ show epochs ++ "-" ++ show seed) network
 
 -- Util
 
-iterate' :: (a -> a) -> a -> [a]
-iterate' f x = x `seq` (x : iterate' f (f x))
+logiter :: (Show a, NFData a) => Int -> (a -> a) -> a -> IO a
+logiter iter f x
+  | iter >= 0 = do
+        let y = f x
+        putStrLn $ "iter " ++ show iter
+        deepseq y $ if iter == 0 then return y else logiter (iter - 1) f y
+  | otherwise = error "no negative iter!"

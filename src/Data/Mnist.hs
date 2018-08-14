@@ -14,7 +14,7 @@ getMnistData :: FilePath -> FilePath -> IO [(HM.Vector R, HM.Vector R)]
 getMnistData images labels= do
     imageData <- decodeIDXFile images
     labelData <- decodeIDXLabelsFile labels
-    return [ (vector $ VB.toList image, vector [if x == label then 1.0 else 0.0 | x <- [0..9]]) | (label, image) <- fromJust ((labeledDoubleData >? labelData) >? imageData)]
+    return [ (vector $ VB.toList (VB.map (/ 255) image), vector [if x == label then 1.0 else 0.0 | x <- [0..9]]) | (label, image) <- fromJust ((labeledDoubleData >? labelData) >? imageData)]
 
 -- Utils
 
