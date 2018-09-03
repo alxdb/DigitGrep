@@ -6,7 +6,7 @@ import           Numeric.LinearAlgebra
 
 main :: IO ()
 main = do
-    network <- loadNetwork "network"
+    network <- loadNetwork "network-0.3-4-123"
     testData <- getTestingData
     let results = zipWith (test network) (map snd testData) (map fst testData)
     putStrLn $ "accuracy = " ++ show ((fromIntegral . length . filter (== True) $ results) / (fromIntegral . length $ results) :: Double)

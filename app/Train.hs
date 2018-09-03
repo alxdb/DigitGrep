@@ -2,20 +2,25 @@ module Main where
 
 import           AI.NeuralNet
 import           Control.DeepSeq
+import           Control.Monad
 import           Data.Mnist
+import           Data.List.Split
 import           Numeric.LinearAlgebra
 
 seed :: Int
 seed = 123
 
 eta :: R
-eta = 0.3
+eta = 3.0
 
 hiddenLayers :: [Int]
-hiddenLayers = [16, 16]
+hiddenLayers = [10]
 
 epochs :: Int
-epochs = 4
+epochs = 30
+
+subsetsize :: Int
+subsetsize = 10
 
 main :: IO ()
 main = do
@@ -26,8 +31,13 @@ main = do
     putStrLn "creating init network"
     -- Training Loop
     putStrLn "starting Training"
-    network <- logiter epochs (train eta trainData) initNetwork
+    network <- logiter epochs (\ iternet -> foldl (\ net dat -> train eta dat net) iternet (chunksOf subsetsize trainData)) initNetwork
     saveNetwork ("network-" ++ show eta ++ "-" ++ show epochs ++ "-" ++ show seed) network
+
+trainingLoop :: NeuralNet -> [(Vector R, Vector R)] -> IO NeuralNet
+trainingLoop net dat = do
+  network <- logiter epochs (train eta dat) net
+  return network
 
 -- Util
 

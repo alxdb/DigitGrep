@@ -82,15 +82,16 @@ backProp network (input, output) = foldl feedBack [(asColumn initDel * asRow ini
         backSet = map (\i -> (snd foreRes !! i, fst foreRes !! (i + 1), fst (reverse network !! (i - 1)))) [1..length network - 1]
 
 -- |Training Function
--- applys back propagation to a network given a set of input data
+-- applies back propagation to a network given a set of input data
 train :: R -> [(Vector R, Vector R)] -> NeuralNet -> NeuralNet
 train eta ioPairs network = mapPair applyDel (network, grad)
     where
         applyDel :: Layer -> Nabla -> Layer
-        applyDel (w, b) (dw, db) = (w - scalar (eta / fromIntegral (length ioPairs)) * dw, b - scalar (eta / fromIntegral (length ioPairs)) * db)
-        grad = foldl (zipWith addPair) grad_init del_grads
-        grad_init = map (\l -> (konst 0 . size . fst $ l, konst 0 . size . snd $ l)) network
+        applyDel (w, b) (dw, db) = (w - scalar eta * dw, b - scalar eta * db)
+        grad = foldl (\ g io -> zipWith addPair g (backProp network io)) grad_init ioPairs
+        grad_init = map (\ l -> (konst 0 . size . fst $ l, konst 0 . size . snd $ l)) network :: Gradient
         del_grads = map (backProp network) ioPairs
+        add_grad (nw, nb) (dnw, dnb) = (nw + dnw, nb + dnb)
 
 -- Util
 

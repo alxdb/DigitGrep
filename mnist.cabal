@@ -19,7 +19,7 @@ library
 executable TrainMnist
   hs-source-dirs: app
   main-is: Train.hs
-  build-depends: base >= 4.7 && < 5, mnist, hmatrix, deepseq
+  build-depends: base >= 4.7 && < 5, mnist, hmatrix, deepseq, split
 
 executable TestMnist
   hs-source-dirs: app
